@@ -1,12 +1,157 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Rodadas de Futebol</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap"
+        rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+        }
+
+        #round-container {
+            width: 340px;
+            height: 394px;
+            border-radius: 10px;
+            box-shadow: 20px 10px 30px 1px gray;
+            padding: 2rem;
+            margin: 0 auto;
+            border: 1px solid lightgray;
+            position: relative;
+            margin-top: 3rem;
+        }
+
+        .round {
+            margin-bottom: 20px;
+        }
+
+        .jogo {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .time {
+            width: 150px;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px;
+        }
+
+        .time img {
+            width: 32px;
+            height: 40px;
+            margin-right: 10px;
+        }
+
+        .pontos {
+            width: 100px;
+            font-family: Inter;
+            font-size: 15px;
+            font-weight: 700;
+            line-height: 18.15px;
+            text-align: center;
+        }
+
+        button {
+            padding: 5px 10px;
+            border-radius: 10px;
+            background-color: #33B667;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            margin: 0 10px;
+        }
+
+        button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .title-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 0;
+        }
+
+        .rodada {
+            font-family: Inter;
+            font-size: 16px;
+            font-weight: 400;
+            line-height: 19.36px;
+            text-align: center;
+        }
+
+        #current-round-text {
+            font-family: Inter;
+            font-size: 12px;
+            font-weight: 700;
+            line-height: 14.52px;
+            text-align: center;
+        }
+
+        .time-name {
+            font-family: Inter;
+            font-size: 12px;
+            font-weight: 700;
+            line-height: 14.52px;
+            text-align: center;
+        }
+
+        .pontos-text {
+            font-size: 16px;
+            color: #000;
+        }
+
+        .pontos-separator {
+            font-size: 12px;
+            font-weight: bold;
+            color: #D1D1D1;
+            margin: 0 5px;
+        }
+
+        .navbar {
+            width: 100%;
+            background-color: #33B667;
+            height: 76px;
+            font-family: Inter;
+            font-size: 22px;
+            font-weight: 900;
+            line-height: 26.63px;
+            text-align: center;
+            color: white;
+
+
+        }
+    </style>
 </head>
+
 <body>
     <main>
+        <div class="navbar">
+            <p style="padding-top: 24px;">
+                SEVNESPORTES⚽
+
+            </p>
+        </div>
         <div id="round-container">
             <div class="header-container">
                 <button id="prev-round-btn">
@@ -22,7 +167,113 @@
             </div>
 
          </div>
+
+        <script>
+            let currentRoundIndex = 0;
+             let roundsData = []; 
+ 
+             async function fetchRounds() {
+                try {
+                    const response = await fetch('https://sevn-pleno-esportes.deno.dev/');
+                    const data = await response.json();
+
+                     roundsData = data;
+
+                     renderRound();
+                } catch (error) {
+                    console.error('Erro ao buscar os dados da API:', error);
+                }
+            }
+
+             function renderRound() {
+                const roundContainer = document.getElementById('round-container');
+                const headerContainer = document.querySelector('.header-container');
+
+                 roundContainer.innerHTML = '';
+                roundContainer.appendChild(headerContainer);
+
+                 const currentRound = roundsData[currentRoundIndex];
+
+                 document.getElementById('current-round-text').textContent = `Rodada ${currentRound.round}`;
+
+                 currentRound.games.forEach((game, index) => {
+                    const gameDiv = document.createElement('div');
+                    gameDiv.classList.add('jogo');
+
+                     const homeTeamDiv = document.createElement('div');
+                    homeTeamDiv.classList.add('time');
+                    const homeShield = document.createElement('img');
+                    homeShield.src = `Assets/escudos/team_shield_${String.fromCharCode(97 + index * 2)}.png`; 
+                     const homeTeamName = document.createElement('span');
+                    homeTeamName.classList.add('time-name');
+                    homeTeamName.textContent = game.team_home_name;
+                    homeTeamDiv.appendChild(homeShield);
+                    homeTeamDiv.appendChild(homeTeamName);
+ 
+                     const scoreDiv = document.createElement('div');
+                    scoreDiv.classList.add('pontos');
+                    const scoreText = document.createElement('span');
+                    scoreText.classList.add('pontos-text');
+
+                  
+                    const homeScore = document.createElement('span');
+                    homeScore.textContent = game.team_home_score;
+
+                 
+                    const separator = document.createElement('span');
+                    separator.textContent = ' X ';
+                    separator.classList.add('pontos-separator');
+ 
+                    const awayScore = document.createElement('span');
+                    awayScore.textContent = game.team_away_score;
+ 
+                    scoreText.appendChild(homeScore);
+                    scoreText.appendChild(separator); 
+                    scoreText.appendChild(awayScore);
+
+                    scoreDiv.appendChild(scoreText);
+
+                     const awayTeamDiv = document.createElement('div');
+                    awayTeamDiv.classList.add('time');
+                    const awayShield = document.createElement('img');
+                    awayShield.src = `Assets/escudos/team_shield_${String.fromCharCode(98 + index * 2)}.png`; 
+                    const awayTeamName = document.createElement('span');
+                    awayTeamName.classList.add('time-name');
+                    awayTeamName.textContent = game.team_away_name;
+                    awayTeamDiv.appendChild(awayShield);
+                    awayTeamDiv.appendChild(awayTeamName);
+
+                     gameDiv.appendChild(homeTeamDiv);
+                    gameDiv.appendChild(scoreDiv);
+                    gameDiv.appendChild(awayTeamDiv);
+
+                     roundContainer.appendChild(gameDiv);
+                });
+
+                 const prevRoundBtn = document.getElementById('prev-round-btn');
+                const nextRoundBtn = document.getElementById('next-round-btn');
+
+                prevRoundBtn.disabled = currentRoundIndex === 0;
+                 nextRoundBtn.disabled = currentRoundIndex >= roundsData.length - 1; 
+             }
+
+             document.getElementById('next-round-btn').addEventListener('click', () => {
+                if (currentRoundIndex < roundsData.length - 1) {
+                    currentRoundIndex++;
+                     renderRound(); 
+                 }
+            });
+
+             document.getElementById('prev-round-btn').addEventListener('click', () => {
+                if (currentRoundIndex > 0) {
+                    currentRoundIndex--;  
+                    renderRound(); 
+                }
+            });
+
+             fetchRounds();
+        </script>
     </main>
-    
 </body>
+
 </html>
